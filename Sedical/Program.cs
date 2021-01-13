@@ -28,24 +28,44 @@ namespace Sedical
 
             var result = new List<SedicalO>();
 
-            var lastValue = values.columns.Where(x => x.name.Equals("LoggerLastValue")).FirstOrDefault();
+            var data = values.columns.Where(x => x.name.Equals("LoggerLastValue")).FirstOrDefault();
             var name = obj.Where(x => x.name.Equals("Device")).FirstOrDefault().columns.Where(x => x.name.Equals("Name")).FirstOrDefault();
 
             if (values != null)
             {
-                var indice = 20;
+                var indice = 6;
                 var name_ind = 6;
                 do
                 {
-                    result.Add(new SedicalO
+                    var sedical = new SedicalO
                     {
-                        Id = lastValue.values[indice].ToString(),
-                        Name = name.values[name_ind].ToString(),
-                        LecturaEnergia = lastValue.values[indice - 14].ToString(),
-                    });
+                        DireccionSecundaria = data.values[indice + 14].ToString(),
+                        Nombre = name.values[name_ind].ToString(),
+                        EnergiaActual = data.values[indice].ToString(),
+                        VolumenActual = data.values[indice + 2].ToString(),
+                        VolumenInput1_Actual = data.values[indice + 7].ToString(),
+                        VolumenInput2_Actual = data.values[indice + 10].ToString(),
+                        TemperaturaImpulsion = data.values[indice + 15].ToString(),
+                        TemperaturaRetorno = data.values[indice + 16].ToString(),
+                        CaudalInstantaneo = data.values[indice + 17].ToString(),
+                        PotenciaInstantanea = data.values[indice + 18].ToString(),
+                        HorasFuncionamiento = data.values[indice + 20].ToString(),
+                        EnergiaMes = new List<string>(),
+                        Input1Mes = new List<string>(),
+                        Input2Mes = new List<string>(),
+                    };
+
+                    for (int i = 0; i < 18; i++)
+                    {
+                        sedical.EnergiaMes.Add(data.values[indice + 22 + i].ToString());
+                        sedical.Input1Mes.Add(data.values[indice + 60 + i].ToString());
+                        sedical.Input2Mes.Add(data.values[indice + 78 + i].ToString());
+                    }
+
+                    result.Add(sedical);
                     indice += 96;
                     name_ind++;
-                } while (lastValue.values.Count() >= indice);
+                } while (data.values.Count() > indice);
 
                 var jsonstring = System.Text.Json.JsonSerializer.Serialize(result);
                 jsonToCSV(jsonstring, " ");
